@@ -1,13 +1,30 @@
+import { Pokemon } from "@/types/pokemon.type";
 import Image from "next/image";
 import Link from "next/link";
+
+export const generateMetadata = async ({
+  params,
+}: {
+  params: { id: string };
+}) => {
+  const { id } = params;
+
+  const response = await fetch(`http://localhost:3000/api/pokemons/${id}`);
+  if (!response.ok) throw new Error("데이터 불러오기 실패");
+  const pokemon: Pokemon = await response.json();
+
+  return {
+    title: `${pokemon.korean_name}`,
+    description: `${pokemon.korean_name}의 프로필`,
+  };
+};
 
 const PokemonDetailPage = async ({ params }: { params: { id: string } }) => {
   const { id } = params;
 
   const response = await fetch(`http://localhost:3000/api/pokemons/${id}`);
   if (!response.ok) throw new Error("데이터 불러오기 실패");
-  const pokemon = await response.json();
-  console.log(pokemon);
+  const pokemon: Pokemon = await response.json();
 
   return (
     <>
@@ -30,7 +47,7 @@ const PokemonDetailPage = async ({ params }: { params: { id: string } }) => {
           </h3>
           <Image
             src={pokemon.sprites.other.home.front_default}
-            alt={pokemon.korean_name}
+            alt={pokemon.name}
             width={600}
             height={600}
           />
@@ -52,7 +69,7 @@ const PokemonDetailPage = async ({ params }: { params: { id: string } }) => {
           </div>
           <ul className="flex gap-2">
             🏷️ 타입:
-            {pokemon.types.map((type: any, index: number) => (
+            {pokemon.types.map((type, index) => (
               <li key={type.type.name}>
                 {type.type.korean_name}({type.type.name})
                 {pokemon.types.length - 1 === index ? "" : ", "}
@@ -61,7 +78,7 @@ const PokemonDetailPage = async ({ params }: { params: { id: string } }) => {
           </ul>
           <ul className="flex gap-2">
             🏷️ 특성:
-            {pokemon.abilities.map((ability: any, index: number) => (
+            {pokemon.abilities.map((ability, index) => (
               <li key={ability.ability.name}>
                 {ability.ability.korean_name}({ability.ability.name})
                 {pokemon.abilities.length - 1 === index ? "" : ", "}
@@ -69,16 +86,16 @@ const PokemonDetailPage = async ({ params }: { params: { id: string } }) => {
             ))}
           </ul>
           <p>🏷️ 기술</p>
-          <div className="flex flex-wrap">
-            {pokemon.moves.map((move: any) => (
-              <p
+          <ul className="flex flex-wrap">
+            {pokemon.moves.map((move) => (
+              <li
                 key={move.move.name}
                 className="border rounded-md w-fit p-2 mx-2 my-1 bg-blue-500 text-yellow-300 font-bold text-sm"
               >
                 {move.move.korean_name}
-              </p>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       </div>
     </>
