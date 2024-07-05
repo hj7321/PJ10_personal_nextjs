@@ -1,6 +1,5 @@
 export type Pokemon = {
   id: number;
-  names: TypeKoreanName[];
   name: string;
   korean_name: string | null;
   height: number;
@@ -9,12 +8,45 @@ export type Pokemon = {
     front_default: string;
     other: { home: { front_default: string } };
   };
-  types: { type: { name: string; korean_name: string } }[];
-  abilities: { ability: { name: string; korean_name: string } }[];
-  moves: { move: { name: string; korean_name: string } }[];
+  types: TypesKorean[];
+  abilities: AbilitiesKorean[];
+  moves: MovesKorean[];
 };
 
-export type TypeKoreanName = {
+export type Names = {
   language: { name: string; url: string };
   name: string;
+};
+
+export type NamesKorean = {
+  name: string;
+  korean_name: string;
+};
+
+export type PokemonSpecies = {
+  names: Names[];
+};
+
+export type Types = {
+  names: Names[];
+};
+
+export type Abilities = {
+  names: Names[];
+};
+
+export type Moves = {
+  names: Names[];
+};
+
+export type TypesKorean = {
+  type: NamesKorean;
+};
+
+export type AbilitiesKorean = {
+  ability: NamesKorean;
+};
+
+export type MovesKorean = {
+  move: NamesKorean;
 };
