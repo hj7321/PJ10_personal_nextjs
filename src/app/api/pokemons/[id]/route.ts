@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
+import { Pokemon, TypeKoreanName } from "@/types/pokemon.type";
 
 export const GET = async (
   request: Request,
@@ -8,14 +9,17 @@ export const GET = async (
   const { id } = params;
 
   try {
-    const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
-    const speciesResponse = await axios.get(
+    const response: AxiosResponse<Pokemon, any> = await axios.get(
+      `https://pokeapi.co/api/v2/pokemon/${id}`
+    );
+    const speciesResponse: AxiosResponse<Pokemon, any> = await axios.get(
       `https://pokeapi.co/api/v2/pokemon-species/${id}`
     );
 
-    const koreanName = speciesResponse.data.names?.find(
-      (name: any) => name.language.name === "ko"
-    );
+    const koreanName: TypeKoreanName | undefined =
+      speciesResponse.data.names?.find(
+        (name: any) => name.language.name === "ko"
+      );
 
     const typesWithKoreanNames = await Promise.all(
       response.data.types.map(async (type: any) => {
