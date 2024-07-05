@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import axios, { AxiosResponse } from "axios";
-import { Pokemon, TypeKoreanName } from "@/types/pokemon.type";
+import { Pokemon, PokemonSpecies, Names } from "@/types/pokemon.type";
 
 const TOTAL_POKEMON: number = 151;
 
 export const GET = async (request: Request) => {
   try {
     const allPokemonPromises: Promise<
-      [AxiosResponse<Pokemon, any>, AxiosResponse<Pokemon, any>]
+      [AxiosResponse<Pokemon, any>, AxiosResponse<PokemonSpecies, any>]
     >[] = Array.from({ length: TOTAL_POKEMON }, (_, index) => {
       const id: number = index + 1;
       return Promise.all([
@@ -18,15 +18,14 @@ export const GET = async (request: Request) => {
 
     const allPokemonResponses: [
       AxiosResponse<Pokemon, any>,
-      AxiosResponse<Pokemon, any>
+      AxiosResponse<PokemonSpecies, any>
     ][] = await Promise.all(allPokemonPromises);
 
     const allPokemonData: Pokemon[] = allPokemonResponses.map(
       ([response, speciesResponse], index) => {
-        const koreanName: TypeKoreanName | undefined =
-          speciesResponse.data.names.find(
-            (name: any) => name.language.name === "ko"
-          );
+        const koreanName: Names | undefined = speciesResponse.data.names.find(
+          (name: Names) => name.language.name === "ko"
+        );
         return { ...response.data, korean_name: koreanName?.name || null };
       }
     );
