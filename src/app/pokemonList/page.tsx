@@ -5,31 +5,44 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import "../../app/styles/loading.css";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 const PokemonListPage: React.FC = () => {
-  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
+  // const [isPending, setIsPending] = useState<boolean>(true);
+  // const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/pokemons");
-        if (!response.ok) throw new Error("데이터 불러오기 실패");
-        const data = await response.json();
-        console.log(data);
-        if (Array.isArray(data)) setPokemonList(data);
-      } catch (err) {
-        setError((err as Error).message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await fetch("/api/pokemons");
+  //       if (!response.ok) throw new Error("데이터 불러오기 실패");
+  //       const data: Pokemon[] = await response.json();
+  //       if (Array.isArray(data)) setPokemonList(data);
+  //     } catch (err) {
+  //       setError((err as Error).message);
+  //     } finally {
+  //       setIsPending(false);
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
-  if (isLoading) {
+  const {
+    data: pokemonList,
+    isPending,
+    error,
+  } = useQuery<Pokemon[], Error>({
+    queryKey: ["pokemons"],
+    queryFn: async () => {
+      const { data } = await axios.get<Pokemon[]>("/api/pokemons");
+      return data;
+    },
+  });
+
+  if (isPending) {
     return (
       <section className="flex flex-col justify-center items-center h-screen gap-4">
         <div className="loader"></div>
@@ -40,7 +53,8 @@ const PokemonListPage: React.FC = () => {
 
   if (error) {
     console.error(error);
-    return <div>에러: {error}</div>;
+    // return <div>에러: {error}</div>; // useState(error 부분) 사용 시
+    return <div>에러: {error.message}</div>; // TanStack Query 사용 시
   }
 
   return (
@@ -55,7 +69,7 @@ const PokemonListPage: React.FC = () => {
           >
             <Image
               src={pokemon.sprites.front_default}
-              alt={pokemon.korean_name}
+              alt={pokemon.name}
               width={100}
               height={100}
             />
